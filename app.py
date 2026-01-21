@@ -1,6 +1,11 @@
 import streamlit as st
 import time
 import google.generativeai as genai
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # --- 0. CONFIGURATION ---
 st.set_page_config(
@@ -10,8 +15,8 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# *** HARDCODE YOUR API KEY HERE ***
-GEMINI_API_KEY = "AIzaSyCinHnlOj1ILtR7CuvPqs4NaqT-XJJT3Vs" 
+# Load API key from .env file
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") 
 
 # --- 1. CSS STYLING (Fixed Visibility & Spacing) ---
 st.markdown("""
