@@ -18,7 +18,7 @@ st.set_page_config(
 # Load API key from .env file
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") 
 
-# --- 1. CSS STYLING (Fixed Visibility & Spacing) ---
+# --- 1. CSS STYLING ---
 st.markdown("""
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
@@ -91,6 +91,9 @@ st.markdown("""
         display: flex; align-items: center; gap: 10px; color: var(--primary); font-family: monospace;
         font-size: 0.85rem; margin-bottom: 1rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem;
     }
+    /* FIX: Add list styling for AI output */
+    .console-text ul { padding-left: 20px; margin: 0; }
+    .console-text li { margin-bottom: 8px; list-style-type: square; color: #e2e8f0; }
 
     /* Cards */
     .scenario-card { background: var(--panel-glass); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; }
@@ -116,7 +119,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 2. SCENARIO DATA ---
+# --- 2. SCENARIO DATA (With Math Justification) ---
 SCENARIOS = [
     {
         "icon": "fa-battery-full", "stageName": "Raw Material Sourcing", "title": "Lithium Supply Volatility",
@@ -125,27 +128,30 @@ SCENARIOS = [
         "options": [
             {
                 "title": "Spot Market", "desc": "Buy at market price when needed.", "icon": "fa-chart-line", 
-                "riskMsg": "Strike occurs. Price spikes to $35/kg. Cost overrun: $12M.", 
+                "riskMsg": "Strike occurs. Price spikes to $35/kg.", 
                 "type": "bad", "impact": -12.5, "resultText": "Huge Cost Overrun", 
                 "outcome": "Cash saved initially, but you bought at peak panic prices.",
                 "analysis": "You gambled on stability. The strike hit, causing massive overruns.",
-                "value": "Loss: -$12.5M"
+                "value": "Loss: -$12.5M",
+                "calc": "(Strike Price $35 - Budget $20) * 833k Units = -$12.5M Impact"
             },
             {
                 "title": "Hedge Contract", "desc": "Lock price at $22/kg (10% premium).", "icon": "fa-file-signature", 
-                "riskMsg": "Price spikes to $35/kg. You pay $22. Savings: $8M.", 
+                "riskMsg": "Price spikes to $35/kg. You pay $22.", 
                 "type": "good", "impact": 8.2, "resultText": "Cost Avoidance Success", 
                 "outcome": "Smart move. The market spiked, but contract protected margin.",
                 "analysis": "You correctly interpreted the AI warning. Competitors bled cash while you were protected.",
-                "value": "Value Created: +$8.2M (Cost Avoidance)"
+                "value": "Value Created: +$8.2M",
+                "calc": "(Market Price $35 - Hedge Price $22) * 630k Units = +$8.2M Avoided Cost"
             },
             {
                 "title": "Delay & Monitor", "desc": "Wait 3 months for signals.", "icon": "fa-clock", 
-                "riskMsg": "50% chance of delay penalties. Buffer depleted.", 
+                "riskMsg": "50% chance of delay penalties.", 
                 "type": "avg", "impact": -1.5, "resultText": "Operational Delay", 
                 "outcome": "Avoided worst costs, but incurred expedite fees.",
                 "analysis": "You hesitated. The delay forced you to pay expedite fees to catch up.",
-                "value": "Loss: -$1.5M (Expedite Fees)"
+                "value": "Loss: -$1.5M",
+                "calc": "Expedite Fees ($0.5M/month) * 3 Months = -$1.5M Impact"
             }
         ]
     },
@@ -156,11 +162,12 @@ SCENARIOS = [
         "options": [
             {
                 "title": "Vendor Alpha", "desc": "15% lower cost. History of disputes.", "icon": "fa-money-bill-wave", 
-                "riskMsg": "Vendor runs lean. Disruption risk HIGH. Downtime cost: $4M.", 
+                "riskMsg": "Vendor runs lean. Disruption risk HIGH.", 
                 "type": "bad", "impact": -4.0, "resultText": "Production Stoppage", 
                 "outcome": "Vendor Alpha faced a walkout. Line stopped for 3 days.",
                 "analysis": "You chose the cheapest option, ignoring the risk. The strike cost more than the savings.",
-                "value": "Loss: -$4.0M (Downtime)"
+                "value": "Loss: -$4.0M",
+                "calc": "3 Days Downtime * $1.33M Daily Burn Rate = -$4.0M Impact"
             },
             {
                 "title": "Vendor Beta", "desc": "Standard price. Automated facility.", "icon": "fa-robot", 
@@ -168,7 +175,8 @@ SCENARIOS = [
                 "type": "good", "impact": 0.0, "resultText": "Smooth Launch", 
                 "outcome": "Perfect execution. Automation handled volume surge.",
                 "analysis": "You prioritized 'Total Cost of Ownership'. Automation ensured zero downtime.",
-                "value": "Value Created: Operational Continuity"
+                "value": "Value Created: Operational Continuity",
+                "calc": "0 Days Downtime * $1.33M Daily Burn Rate = $0.00 Impact"
             }
         ]
     },
@@ -179,11 +187,12 @@ SCENARIOS = [
         "options": [
             {
                 "title": "Re-route Ship", "desc": "Go around Africa. 14-day delay.", "icon": "fa-route", 
-                "riskMsg": "Plant shuts down for 9 days. Revenue loss: $15M.", 
+                "riskMsg": "Plant shuts down for 9 days.", 
                 "type": "bad", "impact": -15.0, "resultText": "Revenue Collapse", 
                 "outcome": "The plant went dark. Market share lost due to stockouts.",
                 "analysis": "You chose the slow route during a crisis. The factory ran out of parts.",
-                "value": "Loss: -$15.0M (Revenue)"
+                "value": "Loss: -$15.0M",
+                "calc": "9 Days Stockout * $1.66M Daily Revenue = -$15.0M Impact"
             },
             {
                 "title": "Full Air Freight", "desc": "Fly all inventory. 8x Cost.", "icon": "fa-plane-departure", 
@@ -191,7 +200,8 @@ SCENARIOS = [
                 "type": "avg", "impact": -8.0, "resultText": "Budget Bleed", 
                 "outcome": "Production saved, but profitability wiped out by shipping.",
                 "analysis": "You panicked and flew everything. You saved the line, but destroyed profit.",
-                "value": "Loss: -$8.0M (Logistics Cost)"
+                "value": "Loss: -$8.0M",
+                "calc": "Air Premium ($12/kg) * Full Volume (600 Tons) = -$8.0M Impact"
             },
             {
                 "title": "Hybrid Bridge", "desc": "Fly 5 days stock; Ship rest.", "icon": "fa-boxes-stacked", 
@@ -199,7 +209,8 @@ SCENARIOS = [
                 "type": "good", "impact": -1.2, "resultText": "Optimized Spend", 
                 "outcome": "Precision Logistics. You bridged the gap perfectly.",
                 "analysis": "You used AI to calculate the exact 'Bridge' needed, balancing speed and cost.",
-                "value": "Value Created: Minimized Loss (-$1.2M vs -$15M)"
+                "value": "Value Created: Minimized Loss",
+                "calc": "Air Premium (Only 10% Vol) + Standard Sea Freight = -$1.2M Impact"
             }
         ]
     },
@@ -210,19 +221,21 @@ SCENARIOS = [
         "options": [
             {
                 "title": "Stop & Purge", "desc": "Recall batch. 100% Inspect. 24hr Delay.", "icon": "fa-ban", 
-                "riskMsg": "Long term: Costly now ($2M), but prevents massive liability.", 
+                "riskMsg": "Long term: Costly now, but prevents massive liability.", 
                 "type": "good", "impact": -2.0, "resultText": "Brand Secured", 
                 "outcome": "Expensive pause, but you caught a safety hazard. Customers trust you.",
                 "analysis": "You sacrificed short-term speed for brand safety. You avoided a future recall.",
-                "value": "Value Created: Brand Integrity"
+                "value": "Value Created: Brand Integrity",
+                "calc": "1 Day Delay ($1.5M) + Inspection Crew ($0.5M) = -$2.0M Impact"
             },
             {
                 "title": "Ship with Waiver", "desc": "Sign deviation. Keep shipping.", "icon": "fa-file-contract", 
-                "riskMsg": "Liability Alert: 15% Failure rate predicted in field. Recall cost: $45M.", 
+                "riskMsg": "Liability Alert: 15% Failure rate predicted in field.", 
                 "type": "bad", "impact": -45.0, "resultText": "Massive Recall", 
                 "outcome": "Disaster. Batteries failed in the field. Massive PR and financial blow.",
                 "analysis": "You ignored the quality signal. The result was a massive recall and lawsuit.",
-                "value": "Loss: -$45.0M (Recall)"
+                "value": "Loss: -$45.0M",
+                "calc": "Recall Logistics ($15M) + Class Action Suit ($30M) = -$45.0M Impact"
             }
         ]
     }
@@ -252,7 +265,19 @@ def get_gemini_response(context, option_label):
         
         if not active_model: return "Error: No compatible Gemini model found."
         
-        prompt = f"Role: Supply Chain AI. Context: {context}. User Option: {option_label}. Task: Provide 1 sentence financial risk analysis. Start with '>> RISK CALCULATION:'"
+        # CHANGED: Prompt now asks for raw HTML list items to force formatting
+        prompt = f"""
+        Role: Supply Chain AI. Context: {context}. User Option: {option_label}. 
+        Task: Provide 3 ultra-short, punchy bullet points.
+        IMPORTANT: Return the output as a raw HTML unordered list (<ul>) with list items (<li>).
+        Do not use Markdown. Use bold tags (<b>) for the category keys (Financial, Operational, Long-term).
+        Example format:
+        <ul>
+        <li><b>Financial:</b> High cost risk.</li>
+        <li><b>Operational:</b> Delays likely.</li>
+        <li><b>Long-term:</b> Brand damage.</li>
+        </ul>
+        """
         response = active_model.generate_content(prompt)
         return response.text
     except Exception as e: return f"Error: {str(e)}"
@@ -399,8 +424,11 @@ elif st.session_state.current_stage < len(SCENARIOS):
         st.markdown(f"""
         <div class="outcome-modal" style="background:rgba(30, 41, 59, 0.9); border:1px solid #334155; padding:2rem; border-radius:12px; border-left:4px solid #0ea5e9;">
             <h3 style="color:white; margin:0;">{choice['resultText']}</h3>
-            <p style="color:#94a3b8;">{choice['outcome']}</p>
+            <p style="color:#94a3b8; margin-bottom:15px;">{choice['outcome']}</p>
             <div style="font-family:monospace; font-weight:bold; color:white;">IMPACT: {sign}${abs(choice['impact']):.2f}M</div>
+            <div style="font-family:monospace; font-size:0.85rem; color:#94a3b8; background:rgba(0,0,0,0.3); padding:8px; border-radius:4px; margin-top:10px;">
+                <i class="fa-solid fa-calculator"></i> CALCULATION: {choice['calc']}
+            </div>
         </div><br>
         """, unsafe_allow_html=True)
         
@@ -462,6 +490,9 @@ else:
             </div>
             <div style="color:#e2e8f0; margin-bottom:5px;"><strong>Decision:</strong> {step['decision']}</div>
             <div style="color:#94a3b8; font-size:0.9rem;">{c_data['analysis']}</div>
+            <div style="font-family:monospace; font-size:0.8rem; background:rgba(255,255,255,0.05); padding:5px; border-radius:4px; display:inline-block; margin-top:5px;">
+               {c_data['calc']}
+            </div>
             <div style="color:{color}; font-weight:bold; margin-top:10px;">{c_data['value']}</div>
         </div>
         """, unsafe_allow_html=True)
