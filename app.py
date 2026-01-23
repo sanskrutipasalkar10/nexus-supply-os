@@ -1,4 +1,3 @@
-
 import streamlit as st
 import time
 import google.generativeai as genai
@@ -125,13 +124,12 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 2. SCENARIO DATA ---
+# --- 2. SCENARIO DATA (UPDATED NARRATIVES) ---
 SCENARIO_DATA = {
     "icon": "fa-microchip", 
     "stageName": "CRITICAL INCIDENT RESPONSE", 
     "title": "The Silent Chip Crisis",
     "desc": "Your primary supplier, 'TechCore', reports a '2-week delay' due to a server outage. They have been a trusted partner for 5 years. However, Nexus AI has detected conflicting signals in the market.",
-    # CHANGED: Added HTML styling for RED ALERT
     "aiMsg": "<span style='color:#ef4444; font-weight:bold;'>ALERT: Discrepancy detected. TechCore reports a 'glitch', but Global Risk Intelligence feeds indicate a ransomware lockout of their water filtration systems. Insolvency risk model: 94%.</span>",
     "options": [
         {
@@ -141,8 +139,8 @@ SCENARIO_DATA = {
             "type": "bad", 
             "impact": -96.0, 
             "resultText": "Catastrophic Insolvency", 
-            "outcome": "TechCore declared bankruptcy 10 days later. Your supply stopped for 8 weeks while you scrambled for a new vendor.",
-            "analysis": "Reliance on legacy relationships over real-time data signals resulted in a total production halt.",
+            "outcome": "The 'Server Glitch' was a lie. A massive <strong>Ransomware Attack</strong> permanently locked TechCore's industrial <strong>Water Filtration Systems</strong> (critical for chip cooling). They declared bankruptcy 10 days later. Your factory went dark for 8 weeks, creating a solvency crisis.",
+            "analysis": "You ignored the insolvency signal. The resulting production halt cost the company $96M in burn rate and lost revenue.",
             "value": "Loss: -$96.0M",
             "calc": "8 Weeks Downtime * ($2M Burn Rate + $10M Lost Margin) = -$96M"
         },
@@ -153,8 +151,8 @@ SCENARIO_DATA = {
             "type": "avg", 
             "impact": -15.0, 
             "resultText": "Quality Disaster", 
-            "outcome": "You secured chips, but 20% were counterfeit. Ventilators failed in hospitals, triggering a recall.",
-            "analysis": "The supply gap was closed, but at the cost of product integrity. Resilience requires quality, not just speed.",
+            "outcome": "You secured chips, but they were unverified grey-market stock. <strong>20% were counterfeit or heat-damaged.</strong> Ventilators failed in active hospital use, triggering a Class I FDA Recall and massive liability lawsuits.",
+            "analysis": "You solved the schedule problem but destroyed the brand. Resilience is about verifying the *quality* of the supply, not just the existence of it.",
             "value": "Loss: -$15.0M",
             "calc": "Recall Logistics ($10M) + Legal Settlements ($5M) = -$15M"
         },
@@ -165,8 +163,8 @@ SCENARIO_DATA = {
             "type": "good", 
             "impact": 18.0, 
             "resultText": "Market Dominance", 
-            "outcome": "You paid a premium upfront. When TechCore collapsed, you were the ONLY manufacturer shipping, capturing 2,000 units of competitor market share.",
-            "analysis": "Strategic execution. You treated resilience as an investment, protecting the bottom line and capturing growth.",
+            "outcome": "While competitors were paralyzed by the <strong>TechCore Ransomware Lockdown</strong>, you had already secured a new supply line. You became the sole reliable supplier in the market, capturing critical hospital contracts from failed competitors.",
+            "analysis": "Strategic execution. You treated the $2M pivot fee as an investment in continuity, which paid off 9x in market capture.",
             "value": "Gain: +$18.0M",
             "calc": "Market Share Gain (+$20M Profit) - Switch Cost ($2M) = +$18M Net"
         }
@@ -181,7 +179,7 @@ if 'nexus_analysis' not in st.session_state: st.session_state.nexus_analysis = "
 if 'selected_option' not in st.session_state: st.session_state.selected_option = None
 if 'stage_complete' not in st.session_state: st.session_state.stage_complete = False
 
-# --- 4. API FUNCTION (UPDATED PROMPT FOR COLORS) ---
+# --- 4. API FUNCTION ---
 def get_gemini_response(context, option_label):
     if not GEMINI_API_KEY: return "⚠️ API KEY MISSING IN CODE."
     try:
@@ -268,7 +266,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# B. MISSION BRIEFING (START SCREEN) - UPDATED TITLE
+# B. MISSION BRIEFING (START SCREEN)
 if not st.session_state.game_started:
     st.markdown("""
     <div class="mission-header">
@@ -373,7 +371,7 @@ elif not st.session_state.stage_complete:
                         <div class="console-header">
                             <i class="fa-solid fa-robot fa-spin" style="color:#0ea5e9;"></i> <span>ANALYZING INTELLIGENCE FEEDS...</span>
                         </div>
-                        <div class="console-text" style="color:#0ea5e9;">Running Risk Analysis on Profit Margins and Burn Rates...</div>
+                        <div class="console-text" style="color:#0ea5e9;">Running Monte Carlo simulations on Profit Margins and Burn Rates...</div>
                     </div>
                     """, unsafe_allow_html=True)
                     
@@ -454,8 +452,8 @@ else:
         <div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:6px; border-left:3px solid {color}; margin-bottom:15px;">
             <div style="font-family:monospace; color:#cbd5e1; font-size:1rem;">{choice['calc']}</div>
         </div>
-        <div style="color:#94a3b8; font-size:0.95rem;">
-            <strong>AI Post-Mortem:</strong> {choice['analysis']}
+        <div style="color:#94a3b8; font-size:0.95rem; line-height:1.6;">
+            <strong>AI Post-Mortem:</strong> {choice['outcome']}
         </div>
     </div>
     """, unsafe_allow_html=True)
