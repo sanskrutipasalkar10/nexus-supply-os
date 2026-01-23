@@ -371,7 +371,7 @@ elif not st.session_state.stage_complete:
                         <div class="console-header">
                             <i class="fa-solid fa-robot fa-spin" style="color:#0ea5e9;"></i> <span>ANALYZING INTELLIGENCE FEEDS...</span>
                         </div>
-                        <div class="console-text" style="color:#0ea5e9;">Running Monte Carlo simulations on Profit Margins and Burn Rates...</div>
+                        <div class="console-text" style="color:#0ea5e9;">Running Risk analysis simulations on Profit Margins and Burn Rates...</div>
                     </div>
                     """, unsafe_allow_html=True)
                     
